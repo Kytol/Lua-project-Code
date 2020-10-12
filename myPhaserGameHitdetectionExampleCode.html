@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>P2 Physics, collision prototype</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="../v2/build/phaser.min.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+            var game, Phaser, cursors, sprite1, sprite1a, sprite1b, sprite2;
+            window.onload = function() {
+                game = new Phaser.Game (800, 600, Phaser.AUTO, '', 
+                { preload: preload, create: create, update: update, render: render });
+                
+                function preload() {
+                    game.load.image('ball1', '../gameProject/assets/graphics/player.png');
+                    game.load.image('ball2', '../gameProject/assets/graphics/ball2.2.png');
+                    game.load.physics('physicsData', '../gameProject/assets/physics/physics.full.json');
+                }
+                
+                function create() {
+                    game.stage.backgroundColor = '#999999';
+                    
+                    game.physics.startSystem(Phaser.Physics.P2JS);
+                    
+                    //Two grey visible balls
+                    sprite1 = game.add.sprite(200, 200, 'ball1');
+                    game.physics.p2.enable(sprite1);
+	                sprite1.name = 'sprite1';
+                    sprite1.body.clearShapes();
+	                sprite1.body.loadPolygon(['physicsData'], 'player');
+	                
+	                
+	                //Invisible right ball with collision
+	                sprite1a = game.add.sprite(200, 200, 'ball1');
+	                sprite1a.alpha = 0;
+                    game.physics.p2.enable(sprite1a);
+	                sprite1a.name = 'sprite1a';
+                    sprite1a.body.clearShapes();
+	                sprite1a.body.loadPolygon(['physicsData'], 'playera');
+	                
+	                //Invisible left ball with collision
+	                sprite1b = game.add.sprite(200, 200, 'ball1');
+	                sprite1b.alpha = 0;
+                    game.physics.p2.enable(sprite1b);
+	                sprite1b.name = 'sprite1b';
+                    sprite1b.body.clearShapes();
+	                sprite1b.body.loadPolygon(['physicsData'], 'playerb');
+                    
+                    //Red ball
+                    sprite2 = game.add.sprite(400, 300, 'ball2');
+                    game.physics.p2.enable(sprite2);
+	                sprite2.name = 'sprite2';
+	                sprite2.body.clearShapes();
+	                sprite2.body.loadPolygon(['physicsData'], 'ball2');
+	                
+                    
+                    cursors = game.input.keyboard.createCursorKeys();
+                    
+                    game.physics.p2.setPostBroadphaseCallback(checkOverlap, this);  //Checks the overlap!!!!
+                    
+                    game.add.text(18, 16, 'Use arrow keys to move sprite, console logs every time collision happens', { font: '18px Arial', fill: '#000000' });
+                }
+                
+                function checkOverlap(body1, body2) {
+                    if((body1.sprite.name === 'sprite1a' && body2.sprite.name === 'sprite2') || (body1.sprite.name === 'sprite2' && body2.sprite.name === 'sprite1a')){
+                        dosomething();
+                        return false;
+                    }
+                    if((body1.sprite.name === 'sprite1b' && body2.sprite.name === 'sprite2') || (body1.sprite.name === 'sprite2' && body2.sprite.name === 'sprite1b')){
+                        dosomething();
+                        return false;
+                    }
+                    
+                    return true;
+                }
+                
+                function dosomething(){
+                    //Here we should add the lose/fail menu
+                    console.log('COLLISION DETECTED!!');
+                }
+                
+                function update() {
+                    sprite1.body.setZeroVelocity();
+                    sprite1a.body.setZeroVelocity();
+                    sprite1b.body.setZeroVelocity();
+                    
+                    if (cursors.left.isDown)
+                    {
+                    	sprite1.body.moveLeft(400);
+                    	sprite1a.body.moveLeft(400);
+                    	sprite1b.body.moveLeft(400);
+                    	if(sprite1.x < 150)
+                    	{
+                    	    sprite1.body.setZeroVelocity();
+                    	    sprite1a.body.setZeroVelocity();
+                    	    sprite1b.body.setZeroVelocity();
+                    	}
+                    }
+                    else if (cursors.right.isDown)
+                    {
+                    	sprite1.body.moveRight(400);
+                    	sprite1a.body.moveRight(400);
+                    	sprite1b.body.moveRight(400);
+                    	if(sprite1.x > 600)
+                    	{
+                    	    sprite1.body.setZeroVelocity();
+                    	    sprite1a.body.setZeroVelocity();
+                    	    sprite1b.body.setZeroVelocity();
+                    	}
+                    }
+                
+                    if (cursors.up.isDown)
+                    {
+                    	sprite1.body.moveUp(400);
+                    	sprite1a.body.moveUp(400);
+                    	sprite1b.body.moveUp(400);
+                    	if(sprite1.y < 100)
+                    	{
+                    	    sprite1.body.setZeroVelocity();
+                    	    sprite1a.body.setZeroVelocity();
+                    	    sprite1b.body.setZeroVelocity();
+                    	}
+                    }
+                    else if (cursors.down.isDown)
+                    {
+                    	sprite1.body.moveDown(400);
+                    	sprite1a.body.moveDown(400);
+                    	sprite1b.body.moveDown(400);
+                    	if(sprite1.y > 500)
+                    	{
+                    	    sprite1.body.setZeroVelocity();
+                    	    sprite1a.body.setZeroVelocity();
+                    	    sprite1b.body.setZeroVelocity();
+                    	}
+                    	//NOTE
+                    	//we need to restrict the area those balls can be moved with { sprite1.x < number, sprite1.x > number, sprite1.y < number, sprite1.y > number }
+                    	//otherwise when moving the sprite out of frame, the demo will not work
+                    	//!!
+                    }
+                }
+                
+                function render() {
+
+                }
+            };
+        </script>
+    </body>
+</html>
